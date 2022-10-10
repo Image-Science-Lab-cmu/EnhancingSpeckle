@@ -1,4 +1,4 @@
-% caculate the local correlation for eacg window
+% Calculate the local correlation for each window
 % u: the original wave
 % stp_size: the size to shift the window, set as half w_size in recon_NF
 % w_size: window size
@@ -41,7 +41,7 @@ for j1=1:Nsx
     for j2=1:Nsy  
         tu=u(grid_sx(j1)+grid_w,grid_sy(j2)+grid_w);
         tuW=tu.*Wwin;
-        % calucate local correlation and correct the phase
+        % calculate local correlation and correct the phase
         tc=fftCorr_s(tuW,tu).*ramp_correction(hon1+grid_w,hon2+grid_w);
         cu(j1,j2,:,:)=reshape(tc(grid_ws_c,grid_ws_c),1,1,w_size,w_size);
     end

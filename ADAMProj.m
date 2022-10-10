@@ -1,6 +1,3 @@
-% This file is adpated from M. Alterman's work
-% Imaging with local speckle intensity correlations: theory and practice
-% https://webee.technion.ac.il/people/anat.levin/papers/AltermanTOG2021codeData.tar.gz
 
 % an ADAM optimizer to optimize the function
 % f: function to be optimized

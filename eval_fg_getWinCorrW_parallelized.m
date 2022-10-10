@@ -1,5 +1,5 @@
 % This function evaluates the error function and its gradient with respect to the current solution. 
-%The error is the squared difference between a target local correlation
+% The error is the squared difference between a target local correlation
 % array and the one produced by the current guess.
 function [f,g]=eval_fg_getWinCorrW_parallelized(u,stp_size,w_size,Wwin,targ,bdr_size,suppressDC)
 if ~exist('Wwin','var')
@@ -39,10 +39,12 @@ flipfull = @(x) fliplr(flipud(x));
 batch_size = 1;
 parallized= true;
 M = ones(2*hw_size+1, 2*hw_size+1,'gpuArray');
-if suppressDC == 1
-    M(hw_size+1,hw_size+1) = 0;
-elseif suppressDC == 2        
-    M(hw_size+[-1:3],hw_size+[-1:3])= 1-conv2(ones(3),ones(3))/9;
+
+% The DC component in autocorrealtion is not important
+% Since beads have blurry sizes, we suppressed a  blurred region of DC
+if suppressDC
+    %M(hw_size+1,hw_size+1) = 0;
+    M(hw_size+1+[-2:2],hw_size+1+[-2:2])= 1-conv2(ones(3),ones(3))/9;
 end
 
 
