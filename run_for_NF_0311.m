@@ -1,59 +1,21 @@
 gpuDevice(1);
 
-filepath = './';
-filelist = {'main_cam_150um','main_cam_150um2','main_cam_150um3','main_cam_150um4','main_cam_150um5',...
-    'main_cam_150um6','main_cam_150um7'};
+filepath = './data/';
+filelist = {'fluorescent_beads'};
 
-%filepath = './data/speckles1108/';
-%filelist = {'virus_175','neuron_175_2','virus_125_2','neuron_125'};
-
-
-%parpool(3);
-%recon_imgs = {};
-
-% suppressDC = false;
-% 
-% for f_iter = 1:2
-%     load([filepath,filelist{f_iter}]);    
-%     image_num_use = 48;
-%     for sample_rate = [1,2,4]
-%         is_PSI = true;
-%         if is_PSI
-%             p_id_list = 1:image_num_use/3;
-%             l = size(frame_all,2)/3;
-%         else
-%             p_id_list = 1:image_num_use;
-%             l = size(frame_all,2);    
-%         end
-%         
-%         recon_img = recon_NF([filepath,filelist{f_iter}], is_PSI,p_id_list,l,sample_rate,suppressDC);
-%         save(sprintf('recon/local_recon_1017/%s_%dimgs_%dsr.mat',filelist{f_iter},image_num_use,sample_rate),'recon_img');            
-%     end
-% end
 suppress_DC = 2;
 more_phase = false;
 
 sample_rate = 1;
-for f_iter = 7
+for f_iter = 1
     load([filepath,filelist{f_iter}],'frame_all');    
-    if f_iter ==9
-        single_recon=true;        
-        frame_all_temp = reshape(frame_all,[4,54]);
-        frame_all = cell(1,54);
-        for i=1:54
-            frame_all{1,i} = sum(cat(3,frame_all_temp{:,i}),3);
-        end   
-    elseif f_iter ==10
-        single_recon=true;                
-    else       
-        single_recon=true;        
-        frame_all = frame_all(:,55);
+%     single_recon=true;        
+%     frame_all = frame_all(:,55);
         
-%         single_recon=false;        
-%         frame_all = frame_all(:,1:54);
-%         frame_all = reshape(frame_all,[3,18])';
-%         frame_all = reshape(frame_all,[1,54]);       
-    end
+    single_recon=false;        
+    frame_all = frame_all(:,1:54);
+    frame_all = reshape(frame_all,[3,18])';
+    frame_all = reshape(frame_all,[1,54]);       
     
     if single_recon
         image_num_use = 1;%54;
@@ -63,11 +25,7 @@ for f_iter = 7
         more_phase = false;
     else
         more_phase = false;      
-        if more_phase      
-            image_num_use = 108;       
-        else
-            image_num_use = 54;                   
-        end                   
+        image_num_use = 54;                   
         frame_all = frame_all(:,1:image_num_use);         
         
         is_PSI = true;
@@ -77,14 +35,13 @@ for f_iter = 7
     %m_base = 0.016;
     %image_num_use = 1;
     
-    alpha = -0.005;
-    m_base = alpha*(6.5/20)* (2*pi/0.58)* 1.625; % alpha * length_per_pixel* k* |dt|;
+    alpha = -0.003;
+    m_base = -alpha*(6.5/20)* (2*pi/0.58)* 1.625; % -alpha * length_per_pixel* k* |dt|; 
+    %negative sign: after 4f sign, the image is flipped
     
-    for m_base = 0.016
-        w_size = 25;
+    for T_tau = 25
         data_params = struct('is_PSI',is_PSI,'image_num_use', image_num_use);
-        %alg_params = struct('fw',fw,'w_size',49,'max_delta',201,'max_sft',201,'iter',500,'suppress_DC',suppress_DC,'norm_window',false);
-        alg_params = struct('fw',fw,'w_size',w_size,'max_delta',151,'max_sft',401,'iter',200,'suppress_DC',suppress_DC,'norm_window',true,'more_phase',more_phase);
+        alg_params = struct('fw',fw,'T_tau',T_tau,'T_delta',151,'max_sft',401,'iter',200,'suppress_DC',suppress_DC,'norm_window',true,'more_phase',false);
               
         
         if ~single_recon
@@ -99,7 +56,7 @@ for f_iter = 7
         end
         
         save_filename = sprintf('%s/img%d_sr%d_fw%d_ws%d_md%d_ms%d_iter%d',save_dir, image_num_use,sample_rate,...
-        alg_params.fw, alg_params.w_size, alg_params.max_delta, alg_params.max_sft, alg_params.iter);
+        alg_params.fw, alg_params.T_tau, alg_params.T_delta, alg_params.max_sft, alg_params.iter);
         
         if suppress_DC == 1
             save_filename = [save_filename,'_SD'];

@@ -98,8 +98,7 @@ for p_id = p_id_list
     
     % compensate phase ramp
     if isfield(data_param,'angle_m_list')
-        rot_X = imrotate(X,data_param.angle_m_list(1,p_id),'nearest','crop');
-        %rot_X = imrotate(X,-data_param.angle_m_list(1,p_id),'nearest','crop');
+        rot_X = imrotate(X,-data_param.angle_m_list(1,p_id),'nearest','crop');
         ramp_correction = exp(1j*rot_X*data_param.angle_m_list(2,p_id));
     else
         ramp_correction = ones(size(I));
